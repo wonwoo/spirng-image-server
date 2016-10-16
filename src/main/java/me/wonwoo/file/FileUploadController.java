@@ -1,5 +1,6 @@
 package me.wonwoo.file;
 
+import me.wonwoo.file.storage.Files;
 import me.wonwoo.file.storage.StorageFileNotFoundException;
 import me.wonwoo.file.storage.StorageProperties;
 import me.wonwoo.file.storage.StorageService;
@@ -40,13 +41,17 @@ public class FileUploadController {
     model.addAttribute("files", storageService
       .loadAll()
       .map(path ->
-        MvcUriComponentsBuilder
+        new Files(
+          path.getFileName().toString(),
+          MvcUriComponentsBuilder
           .fromMethodName(UriComponentsBuilder.fromHttpUrl(storageProperties.getHost()), FileUploadController.class, "serveFile", path.getFileName().toString())
           .build().toString())
+        )
       .collect(Collectors.toList()));
     model.addAttribute("host",storageProperties.getHost());
     return "uploadForm";
   }
+
 
   @GetMapping("/files/{filename:.+}")
   @ResponseBody
@@ -66,6 +71,12 @@ public class FileUploadController {
     redirectAttributes.addFlashAttribute("message",
       "You successfully uploaded " + file.getOriginalFilename() + "!");
 
+    return "redirect:/";
+  }
+
+  @GetMapping("/delete")
+  public String deleteFile(@RequestParam("filename") String name) {
+    storageService.delete(name);
     return "redirect:/";
   }
 

@@ -81,6 +81,16 @@ public class FileSystemStorageService implements StorageService {
   }
 
   @Override
+  public void delete(String filename) {
+    Path file = load(filename);
+    try {
+      Files.delete(file);
+    } catch (IOException e) {
+      throw new StorageFileNotFoundException("Could not delete file: " + filename);
+    }
+  }
+
+  @Override
   public void init() {
     try {
       Files.createDirectory(rootLocation);

@@ -16,7 +16,22 @@
                 fileName:"file"
             });
         });
+
+        function deleteFile(name){
+            location.href = "/delete?filename=" + name;
+        }
     </script>
+    <style>
+        .img-wrap {
+            position: relative;
+        }
+        .img-wrap .close {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            z-index: 100;
+        }
+    </style>
 </head>
 <body>
 <div th:if="${message}">
@@ -25,8 +40,9 @@
 <div id="fileuploader">Upload</div>
     <div class="row">
         <div class="col-lg-3 col-md-4 col-xs-6 thumb" th:each="file : ${files}">
-            <a class="thumbnail" href="#">
-                <img class="img-responsive" th:src="${file}" alt="" />
+            <a class="thumbnail img-wrap" href="#">
+                <span class="close" th:onclick="'deleteFile(\'' + ${file.name} + '\');'">&times;</span>
+                <img class="img-responsive" th:src="${file.path}" alt="" />
             </a>
         </div>
     </div>
