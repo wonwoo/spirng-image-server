@@ -11,10 +11,8 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Created by wonwoo on 2016. 10. 16..
@@ -46,7 +44,16 @@ public class FileSystemStorageService implements StorageService {
     try {
       return Files.walk(this.rootLocation, 1)
         .filter(path -> !path.equals(this.rootLocation))
+        .sorted((s1, s2) -> {
+          try {
+            return Files.readAttributes(s1, BasicFileAttributes.class).creationTime()
+              .compareTo(Files.readAttributes(s2, BasicFileAttributes.class).creationTime());
+          } catch (IOException ignored) {
+          }
+          return 0;
+        })
         .map(this.rootLocation::relativize);
+
     } catch (IOException e) {
       throw new StorageException("Failed to read stored files", e);
     }

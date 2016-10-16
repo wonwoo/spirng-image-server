@@ -7,19 +7,41 @@
     <link th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet" />
     <link th:href="@{/css/thumbnail-gallery.css}" rel="stylesheet" />
     <script th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.min.js}"></script>
+    <script>
+        var template = '<div class="col-lg-3 col-md-4 col-xs-6 thumb">' +
+                '<a class="thumbnail img-wrap" href="#">' +
+                '<span class="close" onclick="deleteFile(\'${name}\')">&times;</span>' +
+                '<div style="text-align: center" >' +
+                '<img class="img-responsive" src="${path}" alt="" />'+
+                '<span>${name}</span>' +
+                '</div>' +
+                '</a>'+
+                '</div>';
+
+    </script>
     <script th:inline="javascript">
+
+
         $(document).ready(function() {
             $("#fileuploader").uploadFile({
                 dragdropWidth: "100%",
+                allowedTypes: "jpg,png,gif,jpeg",
                 url: [[${host}]],
-//                url:"http://localhost:8888",
-                fileName:"file"
+                fileName:"file",
+                onSuccess:function(files,data,xhr,pd) {
+                    var repl = template.replaceAll("${name}", "" + files[0] + "");
+                    repl = repl.replace("${path}", [[${host}]] +"/files/" + files[0]);
+                    $(".row").prepend(repl)
+                }
             });
         });
-
         function deleteFile(name){
             location.href = "/delete?filename=" + name;
         }
+        String.prototype.replaceAll = function(org, dest) {
+            return this.split(org).join(dest);
+        }
+
     </script>
     <style>
         .img-wrap {
@@ -42,7 +64,10 @@
         <div class="col-lg-3 col-md-4 col-xs-6 thumb" th:each="file : ${files}">
             <a class="thumbnail img-wrap" href="#">
                 <span class="close" th:onclick="'deleteFile(\'' + ${file.name} + '\');'">&times;</span>
-                <img class="img-responsive" th:src="${file.path}" alt="" />
+                <div style="text-align: center" >
+                    <img class="img-responsive" th:src="${file.path}" alt="" />
+                    <span th:text="${file.name}"></span>
+                </div>
             </a>
         </div>
     </div>
